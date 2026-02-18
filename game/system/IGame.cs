@@ -16,7 +16,7 @@ public interface IGameShared
 	public static abstract OnTableTickResultDto OnTableTick(OnTableTickDto input);
 }
 
-public interface IGame : IGameSingle, IGameShared
+public interface IGame : IGameSingle, IGameShared, IGameMulti
 {
 	public static abstract OnConfigResultDto OnConfig();
 	public static abstract OnVerifyResultDto OnVerify(OnVerifyDto input);

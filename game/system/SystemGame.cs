@@ -22,4 +22,7 @@ public partial class Game
 	public static byte[] OnTableInitSys(byte[] input) => OnTableInit(input.FromBytes<OnTableInitDto>()).ToBytes();
 
 	public static byte[] OnTableTickSys(byte[] input) => OnTableTick(input.FromBytes<OnTableTickDto>()).ToBytes();
+
+	//Multi:
+	public static byte[] OnMultiTurnSys(byte[] input) => OnMultiTurn(input.FromBytes<OnMultiTurnDto>()).ToBytes();
 }

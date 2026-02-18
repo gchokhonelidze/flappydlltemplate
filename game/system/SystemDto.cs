@@ -176,6 +176,7 @@ public class OnConfigResultDto
 	public required bool BattleReady { get; init; } = false;
 	public required int TicksIntervalMs { get; init; } //SHARED
 	public required int PrepareDurationMs { get; init; } //SHARED
+	public IEnumerable<MultiTableType>? MultiConfigs { get; init; } //MULTI
 }
 
 [MessagePackObject(true)]
