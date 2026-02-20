@@ -19,6 +19,8 @@ public partial class Game
 	public static byte[] OnMonteCarloSys(byte[] input) => OnMonteCarlo(input.FromBytes<OnMonteCarloDto>()).ToBytes();
 
 	//Shared:
+	public static byte[] OnSharedDataSys(byte[] input) => OnSharedData(input.FromBytes<OnSharedDataDto>()).ToBytes();
+
 	public static byte[] OnTableInitSys(byte[] input) => OnTableInit(input.FromBytes<OnTableInitDto>()).ToBytes();
 
 	public static byte[] OnTableTickSys(byte[] input) => OnTableTick(input.FromBytes<OnTableTickDto>()).ToBytes();

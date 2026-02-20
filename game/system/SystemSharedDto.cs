@@ -84,6 +84,15 @@ public class OnTableTickResultDto
 }
 
 [MessagePackObject(true)]
+public record SharedData(long PlayerId, string IPlayerId, string? PlayerName, string? PlayerImage, Dictionary<string, object> Data);
+
+[MessagePackObject(true)]
+public record OnSharedDataDto(FullState SShared, IEnumerable<SharedData> Datas);
+
+[MessagePackObject(true)]
+public record OnSharedDataResultDto(PartialState SSharedPartial);
+
+[MessagePackObject(true)]
 public record BlockTronDto
 {
 	public required string Hash { get; init; } // '0x000000000468afeb2f9b0fe992d7baff4c9951a6acf7e6cb0e6f81280ea0089b',

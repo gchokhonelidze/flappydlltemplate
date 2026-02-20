@@ -11,8 +11,8 @@ public interface IGameSingle
 
 public interface IGameShared
 {
+	public static abstract OnSharedDataResultDto OnSharedData(OnSharedDataDto input);
 	public static abstract OnTableInitResultDto OnTableInit(OnTableInitDto input);
-
 	public static abstract OnTableTickResultDto OnTableTick(OnTableTickDto input);
 }
 
