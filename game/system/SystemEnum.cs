@@ -11,5 +11,6 @@ public enum EBetType
 public enum EGameType
 {
 	SINGLE,
-	SHARED
+	SHARED,
+	MULTI
 }
