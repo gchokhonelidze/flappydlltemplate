@@ -12,7 +12,7 @@ public record FullState(Dictionary<string, object> State);
 public record PlayerIndStateChange(long PlayerId, PartialState IndStatePartial);
 
 [MessagePackObject(true)]
-public record ChipOp(string? Name, long PlayerId, long Delta, long BalanceAfter, long Timestamp);
+public record ChipOp(string? Name, long PlayerId, decimal Delta, decimal BalanceAfter, long Timestamp);
 
 [MessagePackObject(true)]
 public record Dealer(int SeatId);
@@ -30,11 +30,12 @@ public record Custom(string EventName, long PlayerId, Bet[]? Bets, Dictionary<st
 public record TakenSeat(int SeatId, long PlayerId, long Ms);
 
 [MessagePackObject(true)]
-public record PlayerData(TakenSeat Seat, FullState? IndState, long Balance, ChipOp? LastOp);
+public record PlayerData(TakenSeat Seat, FullState? IndState, decimal Balance, ChipOp? LastOp);
 
 [MessagePackObject(true)]
 public record OnMultiTurnDto(
 	string Hash,
+	string TypeName, // Table type (MultiTableType.TypeName)
 	int MaxThinkDurationMs,
 	int MinPlayers,
 	int MaxPlayers,
@@ -58,6 +59,8 @@ public record OnMultiTurnResDto(
 	PartialState SPvtPartial,
 	Dictionary<long, PlayerIndStateChange> IndStateChanges,
 	long[] TurnPlayerIds,
+	int? OverrideThinkDurationMs,
+	int? OverrideDelayBeforeNextTurnMs,
 	bool RoundEnd,
 	Dealer? NextDealer,
 	Turn? NextTurn
