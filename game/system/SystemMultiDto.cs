@@ -30,7 +30,7 @@ public record Custom(string EventName, long PlayerId, Bet[]? Bets, Dictionary<st
 public record TakenSeat(int SeatId, long PlayerId, long Ms);
 
 [MessagePackObject(true)]
-public record PlayerData(TakenSeat Seat, FullState? IndState, decimal Balance, ChipOp? LastOp);
+public record PlayerData(TakenSeat Seat, FullState? IndState, decimal Balance, ChipOp? LastOp, bool IsBot = false);
 
 [MessagePackObject(true)]
 public record OnMultiTurnDto(
