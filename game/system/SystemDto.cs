@@ -160,6 +160,16 @@ public class FreespinInfoDto
 }
 
 [MessagePackObject(true)]
+public class BonusBuyInfoDto
+{
+	///<summary>Bonus buy bet id</summary>
+	public string BonusBuyBetId { get; init; } = null!;
+
+	///<summary>This multiplier is multiplied on related bet level</summary>
+	public decimal Multiplier { get; init; }
+}
+
+[MessagePackObject(true)]
 public class OnConfigResultDto
 {
 	public required long GameId { get; init; }
@@ -177,6 +187,7 @@ public class OnConfigResultDto
 	public required int TicksIntervalMs { get; init; } //SHARED
 	public required int PrepareDurationMs { get; init; } //SHARED
 	public IEnumerable<MultiTableType>? MultiConfigs { get; init; } //MULTI
+	public BonusBuyInfoDto[]? BonusBuyInfo { get; init; }
 }
 
 [MessagePackObject(true)]

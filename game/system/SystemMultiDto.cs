@@ -21,7 +21,7 @@ public record Dealer(int SeatId);
 public record Turn(int SeatId);
 
 [MessagePackObject(true)]
-public record Bet(string BetId, long Amount);
+public record Bet(string BetId, decimal Amount);
 
 [MessagePackObject(true)]
 public record Custom(string EventName, long PlayerId, Bet[]? Bets, Dictionary<string, object> CustomData, long Ms);
