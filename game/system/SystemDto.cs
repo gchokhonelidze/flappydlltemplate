@@ -167,6 +167,9 @@ public class BonusBuyInfoDto
 
 	///<summary>This multiplier is multiplied on related bet level</summary>
 	public decimal Multiplier { get; init; }
+
+	///<summary>CustomData that is relevant with this BonusBuyBetId</summary>
+	public Dictionary<string, object>? CustomData { get; set; }
 }
 
 [MessagePackObject(true)]
