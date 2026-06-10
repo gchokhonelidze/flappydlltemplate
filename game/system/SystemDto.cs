@@ -78,6 +78,7 @@ public class OnBetIncreaseCheckDto
 	public required decimal TotalBetUsd { get; set; }
 	public required PublicStateDto SPub { get; set; }
 	public required PrivateStateDto SPvt { get; set; }
+	public required IndStateDto SInd { get; set; }
 	public Dictionary<string, object>? Custom { get; set; }
 }
 

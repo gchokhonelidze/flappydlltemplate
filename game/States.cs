@@ -3,10 +3,10 @@ using MessagePack;
 namespace Flappybet;
 
 [MessagePackObject(true)]
-public class SharedPublicStateDto { }
+public class PublicStateDto { }
 
 [MessagePackObject(true)]
-public class SharedPrivateStateDto { }
+public class PrivateStateDto { }
 
 [MessagePackObject(true)]
-public class SharedIndStateDto { }
+public class IndStateDto { }

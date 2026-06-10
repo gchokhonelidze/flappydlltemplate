@@ -25,10 +25,12 @@ public class PlayerDataDto
 	public required decimal RateUsd { get; set; }
 	public required decimal TotalBetUsd { get; set; }
 	public required EBetType Type { get; set; }
-	public required SharedIndStateDto SInd { get; set; }
+	public required IndStateDto SInd { get; set; }
 
 	//---
 	public CustomDto? Custom { get; set; }
+	public BetDto[]? BetIncreases { get; set; }
+	public BetDto? BetIncreaseCurrent { get; set; }
 }
 
 [MessagePackObject(true)]
@@ -36,17 +38,17 @@ public class OnTableInitDto
 {
 	public required string Hash { get; set; }
 	public required decimal HouseEdge { get; set; }
-	public SharedPublicStateDto? SPub { get; set; } //prev round state
-	public SharedPrivateStateDto? SPvt { get; set; } //prev round state
+	public PublicStateDto? SPub { get; set; } //prev round state
+	public PrivateStateDto? SPvt { get; set; } //prev round state
 	public required long Ms { get; set; }
 }
 
 [MessagePackObject(true)]
 public class OnTableInitResultDto
 {
-	public required SharedPublicStateDto SPub { get; set; }
-	public required SharedPrivateStateDto SPvt { get; set; }
-	public required SharedIndStateDto SInd { get; set; }
+	public required PublicStateDto SPub { get; set; }
+	public required PrivateStateDto SPvt { get; set; }
+	public required IndStateDto SInd { get; set; }
 	public required long Ms { get; set; }
 }
 
@@ -55,8 +57,8 @@ public class OnTableTickDto
 {
 	public required decimal HouseEdge { get; set; }
 	public required int TickNonce { get; set; }
-	public required SharedPublicStateDto SPub { get; set; }
-	public required SharedPrivateStateDto SPvt { get; set; }
+	public required PublicStateDto SPub { get; set; }
+	public required PrivateStateDto SPvt { get; set; }
 	public required ExternalDataDto ExternalData { get; set; }
 	public PlayerDataDto[]? Datas { get; set; }
 	public required long Ms { get; set; }
