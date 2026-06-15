@@ -205,6 +205,7 @@ public class InGameFreespinDto
 [MessagePackObject(true)]
 public class OnVerifyDto
 {
+	public required BetDto[] Bets { get; init; }
 	public required string Hash { get; init; } = null!; //hmac512
 	public required decimal HouseEdge { get; set; }
 	public Dictionary<string, object>? CustomData { get; init; }
