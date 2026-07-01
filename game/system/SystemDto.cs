@@ -56,6 +56,9 @@ public class OnBetResultDto
 	public required PrivateStateDto SPvt { get; set; }
 	public PayoutDto[]? Payouts { get; set; }
 
+	/// <summary>Custom data that is relevant to this transaction. Only relevant when Payouts are filled. It is stored inside database, and is shown in history!</summary>
+	public Dictionary<string, object>? Info { get; set; }
+
 	/// <summary>Last played in game nonce</summary>
 	public int? InGameN { get; set; }
 	public InGameFreespinDto? Freespins { get; set; }
@@ -140,6 +143,9 @@ public class OnCustomResultDto
 	public required Dictionary<string, object> SPubPartial { get; set; }
 	public required Dictionary<string, object> SPvtPartial { get; set; }
 	public PayoutDto[]? Payouts { get; set; }
+
+	/// <summary>Custom data that is relevant to this transaction. Only relevant when Payouts are filled. It is stored inside database, and is shown in history!</summary>
+	public Dictionary<string, object>? Info { get; set; }
 
 	/// <summary>Force player to make same amount bet on next round (can be other coin)</summary>
 	public bool ForceBetRepeat { get; set; }
