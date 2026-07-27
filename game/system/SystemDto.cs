@@ -252,3 +252,14 @@ public record OnMonteCarloResultDto
 	public required decimal TotalBetUsd { get; init; }
 	public required decimal GrossWinUsd { get; init; }
 }
+
+[MessagePackObject(true)]
+public class DllLogEntry
+{
+	public string? Level { get; set; } //DEBUG / INFO / WARNING / ERROR
+	public string? Message { get; set; }
+	public string? Method { get; set; }
+	public string? Detail { get; set; }
+	public Dictionary<string, object>? Data { get; set; }
+	public long? DurationMs { get; set; }
+}
