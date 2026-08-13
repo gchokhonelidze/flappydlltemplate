@@ -27,4 +27,11 @@ public partial class Game
 
 	//Multi:
 	public static byte[] OnMultiTurnSys(byte[] input) => OnMultiTurn(input.FromBytes<OnMultiTurnDto>()).ToBytes();
+
+	//Universal:
+	public static byte[] OnUniversalInitSys(byte[] input) => OnUniversalInit(input.FromBytes<OnUniversalInitDto>()).ToBytes();
+
+	public static byte[] OnUniversalCanBetSys(byte[] input) => OnUniversalCanBet(input.FromBytes<OnUniversalCanBetDto>()).ToBytes();
+
+	public static byte[] OnUniversalTickSys(byte[] input) => OnUniversalTick(input.FromBytes<OnUniversalTickDto>()).ToBytes();
 }
