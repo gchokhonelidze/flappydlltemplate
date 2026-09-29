@@ -35,6 +35,11 @@ public record UniversalCustomDto(string EventName, Dictionary<string, object> Cu
 [MessagePackObject(true)]
 public record UniversalBetItemDto(UniversalBetId BetId, decimal BetAmount, decimal? Payout, long? PayoutMs);
 
+/// <summary>
+/// One bet a player placed in the round. <see cref="IntegratorSettings"/> is the player's integrator settings as they stood when
+/// the bet was placed, merged by the host the same way as <see cref="OnBetDto.IntegratorSettings"/>. It rides on the bet because one
+/// round mixes players of several integrators and coins. Null when the integrator set none, or on hosts older than this field.
+/// </summary>
 [MessagePackObject(true)]
 public record UniversalBetDto(
 	UniversalTransactionId TransactionId,
@@ -45,7 +50,8 @@ public record UniversalBetDto(
 	long CoinId,
 	EBetType Type,
 	Dictionary<string, object>? Custom,
-	long Ms
+	long Ms,
+	Dictionary<string, object>? IntegratorSettings = null
 );
 
 /// <summary>
@@ -67,6 +73,10 @@ public record OnUniversalInitResultDto(FullState PublicState, FullState PrivateS
 /// <see cref="MyBets"/> is what this player already has in the round, keyed by transaction id. Universal games put no cap on how many
 /// bets a player may place, so a game that wants one is expected to enforce it from here.
 /// </para>
+/// <para>
+/// <see cref="IntegratorSettings"/> is this player's integrator settings, the same bag the bet will carry into the round once it is
+/// accepted, so a refusal can depend on them. Null when the integrator set none, or on hosts older than this field.
+/// </para>
 /// </summary>
 [MessagePackObject(true)]
 public record OnUniversalCanBetDto(
@@ -80,7 +90,8 @@ public record OnUniversalCanBetDto(
 	Dictionary<UniversalBetId, UniversalBetItemDto> BetItems,
 	Dictionary<UniversalTransactionId, UniversalBetDto> MyBets,
 	Dictionary<string, object>? Custom,
-	long Ms
+	long Ms,
+	Dictionary<string, object>? IntegratorSettings = null
 );
 
 /// <summary>

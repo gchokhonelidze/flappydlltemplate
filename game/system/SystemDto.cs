@@ -40,6 +40,13 @@ public class OnBetDto
 	public PrivateStateDto? SPvt { get; set; }
 	public Dictionary<string, object>? CustomData { get; set; }
 	public required long Ms { get; set; }
+
+	/// <summary>
+	/// The player's integrator settings for this game and coin, already merged by the host (per game, then per coin, then per coin
+	/// per game, the narrower winning key by key). Free-form, so read keys defensively. Null when the integrator set none, and
+	/// always null on hosts older than this field, so a game must behave sensibly without it.
+	/// </summary>
+	public Dictionary<string, object>? IntegratorSettings { get; set; }
 }
 
 [MessagePackObject(true)]

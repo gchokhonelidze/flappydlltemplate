@@ -31,6 +31,13 @@ public class PlayerDataDto
 	public CustomDto? Custom { get; set; }
 	public BetDto[]? BetIncreases { get; set; }
 	public BetDto? BetIncreaseCurrent { get; set; }
+
+	/// <summary>
+	/// This player's integrator settings, merged by the host the same way as <see cref="OnBetDto.IntegratorSettings"/>. It is per
+	/// player and not on <see cref="OnTableInitDto"/> because one table mixes players of several integrators and coins. Null when the
+	/// integrator set none, or on hosts older than this field.
+	/// </summary>
+	public Dictionary<string, object>? IntegratorSettings { get; set; }
 }
 
 [MessagePackObject(true)]
