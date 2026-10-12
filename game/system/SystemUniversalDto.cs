@@ -120,6 +120,17 @@ public record OnUniversalCanBetResultDto(bool CanBet, ErrorDto? Error);
 /// placed. Null when the integrator set none.
 /// </para>
 /// <para>
+/// The host cannot tell whether betting is over or the result is already shown. Only your game knows what its state means, so that
+/// is your job: look at the states you are given here, and if they say the bet should not be taken back any more (betting has ended,
+/// the result is visible), refuse.
+/// <para>
+/// You do not need to worry about the round moving on while you answer. If a tick changes any state after you said yes, the host
+/// does not use your yes. It asks you again with the new states, and you answer again.
+/// </para>
+/// Example: you see <c>phase = "betting"</c> and allow. A tick sets <c>phase = "rolled"</c> before the bet is removed. The host notices
+/// the change and asks again, you now see <c>"rolled"</c> and refuse. The bet stays.
+/// </para>
+/// <para>
 /// A game that does not implement this route never has a bet taken back: the host reads a missing route as a refusal.
 /// </para>
 /// </summary>
