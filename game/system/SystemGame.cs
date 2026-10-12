@@ -33,5 +33,7 @@ public partial class Game
 
 	public static byte[] OnUniversalCanBetSys(byte[] input) => OnUniversalCanBet(input.FromBytes<OnUniversalCanBetDto>()).ToBytes();
 
+	public static byte[] OnUniversalCanRollbackSys(byte[] input) => OnUniversalCanRollback(input.FromBytes<OnUniversalCanRollbackDto>()).ToBytes();
+
 	public static byte[] OnUniversalTickSys(byte[] input) => OnUniversalTick(input.FromBytes<OnUniversalTickDto>()).ToBytes();
 }

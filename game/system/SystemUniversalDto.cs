@@ -102,6 +102,50 @@ public record OnUniversalCanBetDto(
 public record OnUniversalCanBetResultDto(bool CanBet, ErrorDto? Error);
 
 /// <summary>
+/// Asked when a player wants a bet of theirs back: the game decides whether it may still be taken out of the round as it stands right
+/// now. It carries the round the same way <see cref="OnUniversalCanBetDto"/> does, so the answer can depend on the phase the round is
+/// in, on the player's other bets and on what the outcome is going to be.
+/// <para>
+/// Only ever asked for a bet nothing has been paid on yet: a freespin, or a bet a tick already put a payout on, is refused by the host
+/// before the game is asked. Allowing it takes the bet out of the round and gives the player their stake back. Nothing else tells the
+/// game about it: the next tick simply no longer has the bet in <see cref="OnUniversalTickDto.Bets"/>, so a game that keeps bets in its
+/// own state has to notice the bet is gone from there. A fully paid bet leaves that list too, so the way to tell them apart is that a
+/// bet taken back always leaves with none of its items paid. A payout a tick still returns for it lands nowhere.
+/// </para>
+/// <para>
+/// <see cref="MyBets"/> is everything this player holds in the round, keyed by transaction id, <see cref="Bet"/> included.
+/// </para>
+/// <para>
+/// <see cref="IntegratorSettings"/> is this player's integrator settings as they stand now. The bet carries its own copy from when it was
+/// placed. Null when the integrator set none.
+/// </para>
+/// <para>
+/// A game that does not implement this route never has a bet taken back: the host reads a missing route as a refusal.
+/// </para>
+/// </summary>
+[MessagePackObject(true)]
+public record OnUniversalCanRollbackDto(
+	string RoundId,
+	string Hash,
+	decimal HouseEdge,
+	long PlayerId,
+	FullState PublicState,
+	FullState PrivateState,
+	FullState? IndState,
+	UniversalBetDto Bet,
+	Dictionary<UniversalTransactionId, UniversalBetDto> MyBets,
+	long Ms,
+	Dictionary<string, object>? IntegratorSettings = null
+);
+
+/// <summary>
+/// Refusing leaves the bet in the round exactly as it was and nothing is refunded. <see cref="Error"/> is what the player is told;
+/// leaving it null falls back to a generic refusal.
+/// </summary>
+[MessagePackObject(true)]
+public record OnUniversalCanRollbackResultDto(bool CanRollback, ErrorDto? Error);
+
+/// <summary>
 /// The round as it stands at the start of a tick. Every provider running the game gets its own round, so this is one provider's
 /// round only. The three states differ in who is allowed to see them:
 /// <see cref="PublicState"/> reaches every player of the round, <see cref="IndStates"/> reaches only the player it belongs to,
@@ -111,6 +155,40 @@ public record OnUniversalCanBetResultDto(bool CanBet, ErrorDto? Error);
 /// queue: this tick is the only one that will ever be handed these, they are dropped from the round as soon as it returns.
 /// </para>
 /// </summary>
+/// <param name="TickNonce">
+/// Counts the ticks of the game's loop: 1, 2, 3... It does not start over with a new round, but it does start over at 1 when the loop
+/// is restarted (a deploy, a crash). Good for logs, not for game logic.
+/// </param>
+/// <param name="RoundId">Id of the round being ticked. It stays the same for every tick of the round, a new round gets a new one.</param>
+/// <param name="Hash">
+/// The round's hash, made from its server seed. Same value on every tick of the round and in the init that opened it, so draw the
+/// outcome from this and it stays verifiable.
+/// </param>
+/// <param name="HouseEdge">House edge of the round, in percent. Fixed when the round opens; an admin change only applies to the next round.</param>
+/// <param name="PublicState">What every player sees. Return changes in <see cref="OnUniversalTickResultDto.PublicState"/> and they go out to everyone.</param>
+/// <param name="PrivateState">What nobody sees: keep the outcome here until it is time to reveal it.</param>
+/// <param name="IndStates">
+/// One state per player, seen only by that player. A player appears here from their first bet or custom in the round, starting with
+/// an empty state, so every player who did anything this round is in here even if they have no bet.
+/// </param>
+/// <param name="Bets">
+/// Every bet in the round that still has something left to pay, from every player, not only the new ones. A bet keeps coming back
+/// on every tick until all of its items are paid.
+/// <list type="bullet">
+/// <item>A new bet has a null <see cref="UniversalBetItemDto.Payout"/> on all of its items.</item>
+/// <item>A bet you paid only part of comes back with the paid items filled in. Paying those again does nothing.</item>
+/// <item>A bet stops coming back once every item is paid. It is done: its win goes out and it still shows up in the round history.</item>
+/// <item>A bet also stops coming back if the player took it back (see <see cref="OnUniversalCanRollbackDto"/>).</item>
+/// </list>
+/// So this is not a list of everything that happened in the round. If the game needs that (a running total, a leaderboard), keep it
+/// in a state.
+/// Group by <see cref="UniversalBetDto.PlayerId"/> to get one player's bets. To pay one, return it in
+/// <see cref="UniversalPlayerResultDto.Payouts"/> under its <see cref="UniversalBetDto.TransactionId"/>.
+/// </param>
+/// <param name="Customs">
+/// Custom actions players sent since the last tick, at most one per player. You only see each one once, on this tick, so write
+/// whatever it changes into a state or a payout now.
+/// </param>
 [MessagePackObject(true)]
 public record OnUniversalTickDto(
 	int TickNonce,
