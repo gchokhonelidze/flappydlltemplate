@@ -205,6 +205,109 @@ public class OnConfigResultDto
 	public required int PrepareDurationMs { get; init; } //SHARED
 	public IEnumerable<MultiTableType>? MultiConfigs { get; init; } //MULTI
 	public BonusBuyInfoDto[]? BonusBuyInfo { get; init; }
+
+	/// <summary>
+	/// What the game accepts besides a plain bet, for the host's DLL security test only: nothing at runtime reads it. Optional, and a
+	/// game without one plays exactly as before; the test then only sends generic and malformed events, warns about shallow coverage
+	/// and lists every event name it found that the game acts on. With one, the test plays the game through it and holds the game to
+	/// it: an event, a value or a moment it accepts but did not declare fails the test, and a failed build cannot be activated.
+	/// </summary>
+	public GameManifestDto? Manifest { get; init; }
+}
+
+[MessagePackObject(true)]
+public class GameManifestDto
+{
+	/// <summary>Custom data a BET may carry, per bet id; null means a bet carries none. The test builds valid bets from it</summary>
+	public Dictionary<string, GameFieldDto[]>? BetCustom { get; init; }
+
+	/// <summary>Every custom event the game accepts. Nothing else may change a state or pay</summary>
+	public GameActionDto[] Actions { get; init; } = [];
+
+	/// <summary>
+	/// Set when the game pays some prizes as fixed amounts (a jackpot in usd), so a payout multiplier legitimately depends on the stake.
+	/// The test's stake check then warns instead of failing, and the reviewer reads why. Leave it false otherwise: a multiplier that
+	/// moves with the stake is the classic way to rig against big bets.
+	/// </summary>
+	public bool StakeDependentPayouts { get; init; }
+}
+
+[MessagePackObject(true)]
+public class GameActionDto
+{
+	/// <summary>The EventName, exactly as the client sends it</summary>
+	public required string EventName { get; init; }
+
+	/// <summary>The CustomData fields; empty for an event that carries none</summary>
+	public GameFieldDto[] Fields { get; init; } = [];
+
+	/// <summary>When it is allowed: every condition must hold (AND). Empty means always. List several values in one condition for OR</summary>
+	public GameStateConditionDto[] When { get; init; } = [];
+
+	/// <summary>Needs an open bet of the player first (a cash out, a reveal)</summary>
+	public bool RequiresBet { get; init; }
+
+	/// <summary>How often a player may send it per round; null means no limit (a cash out is 1)</summary>
+	public int? MaxPerRound { get; init; }
+}
+
+[MessagePackObject(true)]
+public class GameStateConditionDto
+{
+	/// <summary>Which state the key is read from</summary>
+	public required EGameStateScope Scope { get; init; }
+
+	/// <summary>Top level key of that state</summary>
+	public required string Key { get; init; }
+
+	/// <summary>The values in which the action is allowed, compared as text ("betting", "true", "3")</summary>
+	public required string[] Values { get; init; }
+}
+
+/// <summary>Public: the round's or table's public state (a single game's SPub). Ind: the acting player's own state</summary>
+public enum EGameStateScope
+{
+	Public,
+	Ind,
+}
+
+[MessagePackObject(true)]
+public class GameFieldDto
+{
+	public required string Name { get; init; }
+	public required EGameFieldType Type { get; init; }
+	public bool Required { get; init; } = true;
+
+	/// <summary>Int and Decimal, and each item of IntArray and DecimalArray: inclusive range</summary>
+	public decimal? Min { get; init; }
+	public decimal? Max { get; init; }
+
+	/// <summary>String, and each item of StringArray: the only values allowed; null means any up to MaxLength</summary>
+	public string[]? Values { get; init; }
+	public int? MaxLength { get; init; }
+
+	/// <summary>Any array type: how many items, and whether they must be distinct</summary>
+	public int? MinItems { get; init; }
+	public int? MaxItems { get; init; }
+	public bool Distinct { get; init; }
+
+	/// <summary>Object, and each item of ObjectArray: the nested fields</summary>
+	public GameFieldDto[]? Fields { get; init; }
+}
+
+/// <summary>Never reorder: travels as its number</summary>
+public enum EGameFieldType
+{
+	Int,
+	Decimal,
+	String,
+	Bool,
+	IntArray,
+	DecimalArray,
+	StringArray,
+	BoolArray,
+	Object,
+	ObjectArray,
 }
 
 [MessagePackObject(true)]
