@@ -219,6 +219,11 @@ public record OnUniversalCanRollbackResultDto(bool CanRollback, ErrorDto? Error)
 /// Settle on that tick, not on the one that closed betting, whenever one player's payout depends on the others' bets (a jackpot to
 /// the biggest stake, a split pot). False on hosts older than this field, which have no way to close betting.
 /// </param>
+/// <param name="ClosedBetIds">
+/// Every bet id closed so far by <see cref="OnUniversalTickResultDto.CloseBetIds"/>. The same boundary as <see cref="BetsClosed"/>, per
+/// position: the bets in <see cref="Bets"/> with an item on one of these ids are the final set of bets on that id, nothing can join or
+/// leave them. Settle a position on the first tick that lists it. Empty while none is closed; null on hosts older than this field.
+/// </param>
 [MessagePackObject(true)]
 public record OnUniversalTickDto(
 	int TickNonce,
@@ -230,7 +235,8 @@ public record OnUniversalTickDto(
 	Dictionary<UniversalPlayerId, FullState> IndStates,
 	HashSet<UniversalBetDto> Bets,
 	Dictionary<UniversalPlayerId, UniversalCustomDto> Customs,
-	bool BetsClosed = false
+	bool BetsClosed = false,
+	HashSet<string>? ClosedBetIds = null
 );
 
 /// <summary>
@@ -256,7 +262,16 @@ public record UniversalPlayerResultDto(
 /// <see cref="CloseBetting"/> ends the betting of the round: from this result on, the host refuses every new bet (one already charged
 /// is refunded) and every rollback, while customs keep coming. The bets of this tick are not yet final, a bet may still have landed
 /// after this tick's round was read; the next tick's are, and it arrives with <see cref="OnUniversalTickDto.BetsClosed"/> true. Setting
-/// it again is harmless. A game that never sets it takes bets until the round finishes.
+/// it again is harmless, but there is no need: send it once, the host keeps the close for the rest of the round, and leaving it
+/// false on later ticks never reopens betting. A game that never sets it takes bets until the round finishes.
+/// </para>
+/// <para>
+/// <see cref="CloseBetIds"/> does the same for single bet ids, for a game whose positions stop taking bets at different moments (a
+/// side bet that closes before the main one, a position that is decided mid round). From this result on, a bet with any item on one of
+/// them is refused (a charged one is refunded, whole: a bet is one transaction) and a bet already holding one cannot be taken back. The
+/// next tick lists them in <see cref="OnUniversalTickDto.ClosedBetIds"/>. Ids stay closed until the round ends: send each id once
+/// and leave it out of later results (null or an empty array is fine), leaving it out never reopens it. Repeating one is harmless.
+/// Bets on other ids keep coming in.
 /// </para>
 /// <para>
 /// <see cref="IsRoundFinished"/> settles every item still unpaid as a lose, but only on bets this tick was handed. A bet that reached
@@ -270,5 +285,6 @@ public record OnUniversalTickResultDto(
 	PartialState? PublicState,
 	PartialState? PrivateState,
 	Dictionary<UniversalPlayerId, UniversalPlayerResultDto>? PlayerResults,
-	bool CloseBetting = false
+	bool CloseBetting = false,
+	string[]? CloseBetIds = null
 );
