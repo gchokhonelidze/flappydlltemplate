@@ -212,6 +212,13 @@ public record OnUniversalCanRollbackResultDto(bool CanRollback, ErrorDto? Error)
 /// Custom actions players sent since the last tick, at most one per player. You only see each one once, on this tick, so write
 /// whatever it changes into a state or a payout now.
 /// </param>
+/// <param name="BetsClosed">
+/// True on every tick after the one whose result set <see cref="OnUniversalTickResultDto.CloseBetting"/>. From then on no bet can
+/// enter the round and none can be taken back: a bet whose payment was still on its way when you closed is refunded by the host and
+/// never reaches you. So the <see cref="Bets"/> of the first tick with this true are the complete, final set of the round's bets.
+/// Settle on that tick, not on the one that closed betting, whenever one player's payout depends on the others' bets (a jackpot to
+/// the biggest stake, a split pot). False on hosts older than this field, which have no way to close betting.
+/// </param>
 [MessagePackObject(true)]
 public record OnUniversalTickDto(
 	int TickNonce,
@@ -222,7 +229,8 @@ public record OnUniversalTickDto(
 	FullState PrivateState,
 	Dictionary<UniversalPlayerId, FullState> IndStates,
 	HashSet<UniversalBetDto> Bets,
-	Dictionary<UniversalPlayerId, UniversalCustomDto> Customs
+	Dictionary<UniversalPlayerId, UniversalCustomDto> Customs,
+	bool BetsClosed = false
 );
 
 /// <summary>
@@ -244,11 +252,23 @@ public record UniversalPlayerResultDto(
 /// <summary>
 /// The changes a tick produced. The state changes are partial: only the keys named here are written, the rest of the state is left
 /// as it was. Setting <see cref="IsRoundFinished"/> closes the round and the host opens the next one in its place.
+/// <para>
+/// <see cref="CloseBetting"/> ends the betting of the round: from this result on, the host refuses every new bet (one already charged
+/// is refunded) and every rollback, while customs keep coming. The bets of this tick are not yet final, a bet may still have landed
+/// after this tick's round was read; the next tick's are, and it arrives with <see cref="OnUniversalTickDto.BetsClosed"/> true. Setting
+/// it again is harmless. A game that never sets it takes bets until the round finishes.
+/// </para>
+/// <para>
+/// <see cref="IsRoundFinished"/> settles every item still unpaid as a lose, but only on bets this tick was handed. A bet that reached
+/// the round after this tick's round was read is refunded instead, since you never saw it. Close betting a tick or more before you
+/// finish and that cannot happen.
+/// </para>
 /// </summary>
 [MessagePackObject(true)]
 public record OnUniversalTickResultDto(
 	bool IsRoundFinished,
 	PartialState? PublicState,
 	PartialState? PrivateState,
-	Dictionary<UniversalPlayerId, UniversalPlayerResultDto>? PlayerResults
+	Dictionary<UniversalPlayerId, UniversalPlayerResultDto>? PlayerResults,
+	bool CloseBetting = false
 );
