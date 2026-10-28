@@ -63,9 +63,21 @@ public record UniversalBetDto(
 /// Opens a round: this is where the game decides what the round starts out as. <see cref="Hash"/> is the round's own hash and is
 /// the same one every tick of this round is handed, so an outcome drawn here stays verifiable for the whole round. The previous
 /// states are the ones of the round that just finished, and are null for the first round of a provider game.
+/// <para>
+/// <see cref="Ms"/> is the host's time of the open, unix ms. A game with timed phases (betting closes at, results show at) runs its
+/// clock on this and on <see cref="OnUniversalTickDto.Ms"/>, never on DateTime.Now: the host's security test fails a build that reads
+/// a clock of its own. 0 on hosts older than this field.
+/// </para>
 /// </summary>
 [MessagePackObject(true)]
-public record OnUniversalInitDto(string RoundId, string Hash, decimal HouseEdge, FullState? PreviousPublicState, FullState? PreviousPrivateState);
+public record OnUniversalInitDto(
+	string RoundId,
+	string Hash,
+	decimal HouseEdge,
+	FullState? PreviousPublicState,
+	FullState? PreviousPrivateState,
+	long Ms = 0
+);
 
 [MessagePackObject(true)]
 public record OnUniversalInitResultDto(FullState PublicState, FullState PrivateState);
@@ -219,6 +231,10 @@ public record OnUniversalCanRollbackResultDto(bool CanRollback, ErrorDto? Error)
 /// Settle on that tick, not on the one that closed betting, whenever one player's payout depends on the others' bets (a jackpot to
 /// the biggest stake, a split pot). False on hosts older than this field, which have no way to close betting.
 /// </param>
+/// <param name="Ms">
+/// The host's time of this tick, unix ms: the same clock as <see cref="OnUniversalInitDto.Ms"/> and the Ms of every bet and custom of
+/// the round. Measure timed phases against it instead of reading a clock. 0 on hosts older than this field.
+/// </param>
 /// <param name="ClosedBetIds">
 /// Every bet id closed so far by <see cref="OnUniversalTickResultDto.CloseBetIds"/>. The same boundary as <see cref="BetsClosed"/>, per
 /// position: the bets in <see cref="Bets"/> with an item on one of these ids are the final set of bets on that id, nothing can join or
@@ -236,7 +252,8 @@ public record OnUniversalTickDto(
 	HashSet<UniversalBetDto> Bets,
 	Dictionary<UniversalPlayerId, UniversalCustomDto> Customs,
 	bool BetsClosed = false,
-	HashSet<string>? ClosedBetIds = null
+	HashSet<string>? ClosedBetIds = null,
+	long Ms = 0
 );
 
 /// <summary>

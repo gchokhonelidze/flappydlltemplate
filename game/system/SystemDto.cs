@@ -230,6 +230,22 @@ public class GameManifestDto
 	/// moves with the stake is the classic way to rig against big bets.
 	/// </summary>
 	public bool StakeDependentPayouts { get; init; }
+
+	/// <summary>
+	/// The state keys the game writes when it refuses an action: an acknowledgement so the client stops retrying (a "REJECTED" status).
+	/// Only while the player's result carries an Error does the test leave these out of what it compares; any other change, and every
+	/// payout, still counts as acting on the refused action. A Key ending in "*" matches every key that starts with what comes before it.
+	/// </summary>
+	public GameStateKeyDto[]? RejectionAck { get; init; }
+}
+
+[MessagePackObject(true)]
+public class GameStateKeyDto
+{
+	public required EGameStateScope Scope { get; init; }
+
+	/// <summary>Top level key of that state; a trailing "*" makes it a prefix</summary>
+	public required string Key { get; init; }
 }
 
 [MessagePackObject(true)]
@@ -264,11 +280,15 @@ public class GameStateConditionDto
 	public required string[] Values { get; init; }
 }
 
-/// <summary>Public: the round's or table's public state (a single game's SPub). Ind: the acting player's own state</summary>
+/// <summary>
+/// Public: the round's or table's public state (a single game's SPub). Ind: the acting player's own state. Private: the round's or
+/// table's private state (a single game's SPvt). Never reorder: travels as its number
+/// </summary>
 public enum EGameStateScope
 {
 	Public,
 	Ind,
+	Private,
 }
 
 [MessagePackObject(true)]
@@ -293,6 +313,31 @@ public class GameFieldDto
 
 	/// <summary>Object, and each item of ObjectArray: the nested fields</summary>
 	public GameFieldDto[]? Fields { get; init; }
+
+	/// <summary>
+	/// What a String (or each item of a StringArray) holds when it has to match the round rather than a fixed list. The test then builds
+	/// a valid value from the round it is playing and invalid ones of its own, so no round id or amount is ever written into the manifest
+	/// </summary>
+	public EGameFieldFormat Format { get; init; }
+}
+
+/// <summary>Never reorder: travels as its number</summary>
+public enum EGameFieldFormat
+{
+	/// <summary>Any string within Values / MaxLength</summary>
+	None,
+
+	/// <summary>The id of the round being played</summary>
+	RoundId,
+
+	/// <summary>One of the bet ids the game declares in OnConfig.BetIds</summary>
+	BetId,
+
+	/// <summary>The transaction id of one of the acting player's own bets in the round</summary>
+	TransactionId,
+
+	/// <summary>A decimal written as text ("12.5"), within Min and Max</summary>
+	DecimalString,
 }
 
 /// <summary>Never reorder: travels as its number</summary>
