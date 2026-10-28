@@ -39,6 +39,10 @@ public record UniversalBetItemDto(UniversalBetId BetId, decimal BetAmount, decim
 /// One bet a player placed in the round. <see cref="IntegratorSettings"/> is the player's integrator settings as they stood when
 /// the bet was placed, merged by the host the same way as <see cref="OnBetDto.IntegratorSettings"/>. It rides on the bet because one
 /// round mixes players of several integrators and coins. Null when the integrator set none, or on hosts older than this field.
+/// <para>
+/// <see cref="Unimportant"/> is what your <see cref="OnUniversalCanBetResultDto.Unimportant"/> said about this bet. It is handed back
+/// for reference only; the host already acted on it. False on hosts older than this field.
+/// </para>
 /// </summary>
 [MessagePackObject(true)]
 public record UniversalBetDto(
@@ -51,7 +55,8 @@ public record UniversalBetDto(
 	EBetType Type,
 	Dictionary<string, object>? Custom,
 	long Ms,
-	Dictionary<string, object>? IntegratorSettings = null
+	Dictionary<string, object>? IntegratorSettings = null,
+	bool Unimportant = false
 );
 
 /// <summary>
@@ -97,9 +102,16 @@ public record OnUniversalCanBetDto(
 /// <summary>
 /// Refusing stops the bet before the integrator is called, so the player is never charged for it. <see cref="Error"/> is what the
 /// player is told; leaving it null falls back to a generic refusal.
+/// <para>
+/// <see cref="Unimportant"/> keeps an accepted bet off the bet table every player of the round is shown. A universal round can hold
+/// thousands of bets, so the host only shows the top ones (biggest stake, or biggest win once paid); set this for bets nobody needs
+/// to watch, such as filler or automatic bets, so they never take a place there. The bet is otherwise an ordinary bet: it is charged,
+/// handed to every tick, paid, counted in the round totals, and shown to the player who placed it. Ignored when <see cref="CanBet"/>
+/// is false. Leave it out and the bet is public.
+/// </para>
 /// </summary>
 [MessagePackObject(true)]
-public record OnUniversalCanBetResultDto(bool CanBet, ErrorDto? Error);
+public record OnUniversalCanBetResultDto(bool CanBet, ErrorDto? Error, bool Unimportant = false);
 
 /// <summary>
 /// Asked when a player wants a bet of theirs back: the game decides whether it may still be taken out of the round as it stands right
