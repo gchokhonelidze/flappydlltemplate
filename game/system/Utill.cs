@@ -47,9 +47,6 @@ public partial class Game
 		return (index1 + 1, index2 + 1);
 	}
 
-	/// <summary>Random hex for testing only</summary>
-	public static string RandHex() => Guid.NewGuid().ToString().Replace("-", "");
-
 	/// <summary>Sum of probabilities must be equal to 1, returns index</summary>
 	public static int GetRandomOutcome(string hex, decimal[] probabilities)
 	{
