@@ -319,6 +319,26 @@ public class GameFieldDto
 	/// a valid value from the round it is playing and invalid ones of its own, so no round id or amount is ever written into the manifest
 	/// </summary>
 	public EGameFieldFormat Format { get; init; }
+
+	/// <summary>
+	/// When this field may be sent at all: every condition must hold on the fields beside it. Empty means always. For a field that only
+	/// makes sense with some values of another, e.g. "bonusBuy" only on ordinary difficulties:
+	/// <code>When = [new() { Field = "difficulty", Values = ["easy", "medium", "hard"] }]</code>
+	/// The test then only builds valid data that keeps to it, and also sends the field where a condition fails, which the game has to
+	/// refuse. Required applies only while it holds
+	/// </summary>
+	public GameFieldConditionDto[]? When { get; init; }
+}
+
+/// <summary>A condition on a sibling field of the same data: present, and one of the values</summary>
+[MessagePackObject(true)]
+public class GameFieldConditionDto
+{
+	/// <summary>Name of a field beside this one, at the same level</summary>
+	public required string Field { get; init; }
+
+	/// <summary>The values in which the field is allowed, compared as text ("easy", "true", "3")</summary>
+	public required string[] Values { get; init; }
 }
 
 /// <summary>Never reorder: travels as its number</summary>
