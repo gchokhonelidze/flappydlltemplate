@@ -68,6 +68,15 @@ public record UniversalBetDto(
 /// clock on this and on <see cref="OnUniversalTickDto.Ms"/>, never on DateTime.Now: the host's security test fails a build that reads
 /// a clock of its own. 0 on hosts older than this field.
 /// </para>
+/// <para>
+/// <see cref="Secret"/> is a random value of this round alone, 64 lower case hex characters, that never leaves the server: not with
+/// the round, not when its seed is revealed. Use it for what has to stay unguessable even after the round can be verified, such as
+/// the pseudonyms players are shown under (an HMAC of the player id keyed with it), never Guid.NewGuid or Random, which the host's
+/// security test fails. Ticks are not handed it, so keep it in the private state if a tick needs it. It must never decide an outcome
+/// or a payout: nobody can check what it steered, so the security test plays every round again with another secret and fails a build
+/// whose rounds then pay differently. The same for every try of this round's init. Null on hosts older than this field: a game that
+/// needs it should refuse to open without one rather than make one up.
+/// </para>
 /// </summary>
 [MessagePackObject(true)]
 public record OnUniversalInitDto(
@@ -76,7 +85,8 @@ public record OnUniversalInitDto(
 	decimal HouseEdge,
 	FullState? PreviousPublicState,
 	FullState? PreviousPrivateState,
-	long Ms = 0
+	long Ms = 0,
+	string? Secret = null
 );
 
 [MessagePackObject(true)]
