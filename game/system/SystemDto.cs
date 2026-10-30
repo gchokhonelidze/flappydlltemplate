@@ -239,10 +239,17 @@ public class GameManifestDto
 	public GameStateKeyDto[]? RejectionAck { get; init; }
 
 	/// <summary>
-	/// Universal only, optional: the state keys that carry the round's outcome (the dice, the winning ids, a player's win). The test
-	/// holds each to the first value it takes while every position is still open and names it when it changes. Without it the test still
-	/// replays every round with another hash and fails anything a client sees differ before the close; declaring the keys only makes the
-	/// report say which one. Private keys are ignored. A Key ending in "*" matches every key that starts with what comes before it.
+	/// Universal games only, optional. The state keys where your game shows the result: the dice, the winning ids, a player's win.
+	/// The test checks that these keys do not change while players can still bet. If one does, the report names it.
+	/// <para>
+	/// Example, a dice game: Public "dice" is 0 when the round opens and you write 4 only after betting closes, which passes.
+	/// Writing 4 while bets are still open fails with "Public dice, declared as carrying the outcome, changed while bets were open".
+	/// </para>
+	/// <para>
+	/// Without this list the leak is still caught (the test plays every round again with another hash and compares what players see),
+	/// the report is just less clear. Private keys are ignored, players never see the private state. A key ending in "*" matches every
+	/// key that starts with it: "dice*" matches "dice1" and "dice2".
+	/// </para>
 	/// </summary>
 	public GameStateKeyDto[]? OutcomeKeys { get; init; }
 }
