@@ -237,6 +237,14 @@ public class GameManifestDto
 	/// payout, still counts as acting on the refused action. A Key ending in "*" matches every key that starts with what comes before it.
 	/// </summary>
 	public GameStateKeyDto[]? RejectionAck { get; init; }
+
+	/// <summary>
+	/// Universal only, optional: the state keys that carry the round's outcome (the dice, the winning ids, a player's win). The test
+	/// holds each to the first value it takes while every position is still open and names it when it changes. Without it the test still
+	/// replays every round with another hash and fails anything a client sees differ before the close; declaring the keys only makes the
+	/// report say which one. Private keys are ignored. A Key ending in "*" matches every key that starts with what comes before it.
+	/// </summary>
+	public GameStateKeyDto[]? OutcomeKeys { get; init; }
 }
 
 [MessagePackObject(true)]
