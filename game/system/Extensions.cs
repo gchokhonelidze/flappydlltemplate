@@ -17,6 +17,13 @@ public static class Extensions
 	/// <summary>Convert string to bytes array</summary>
 	public static byte[] StringToBytes(this string str) => Encoding.UTF8.GetBytes(str);
 
+	/// <summary>
+	/// Makes a value safe to print in OnRoundView's html, for example custom data a player sent. It is here because the security test
+	/// refuses a build that touches System.Net, which is where WebUtility.HtmlEncode lives.
+	/// </summary>
+	public static string HtmlEncode(this string? str) =>
+		(str ?? "").Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&#39;");
+
 	/// <summary>Convert bytes array to string</summary>
 
 	public static string BytesToString(this byte[] bytes)

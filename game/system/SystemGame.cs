@@ -16,6 +16,8 @@ public partial class Game
 
 	public static byte[] OnVerifySys(byte[] input) => OnVerify(input.FromBytes<OnVerifyDto>()).ToBytes();
 
+	public static byte[] OnRoundViewSys(byte[] input) => OnRoundView(input.FromBytes<OnRoundViewDto>()).ToBytes();
+
 	public static byte[] OnMonteCarloSys(byte[] input) => OnMonteCarlo(input.FromBytes<OnMonteCarloDto>()).ToBytes();
 
 	//Shared:

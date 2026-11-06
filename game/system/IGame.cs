@@ -20,5 +20,6 @@ public interface IGame : IGameSingle, IGameShared, IGameMulti, IGameUniversal
 {
 	public static abstract OnConfigResultDto OnConfig();
 	public static abstract OnVerifyResultDto OnVerify(OnVerifyDto input);
+	public static abstract OnRoundViewResultDto OnRoundView(OnRoundViewDto input);
 	public static abstract OnMonteCarloResultDto OnMonteCarlo(OnMonteCarloDto input);
 }

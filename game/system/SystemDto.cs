@@ -420,6 +420,32 @@ public class OnVerifyResultDto
 }
 
 [MessagePackObject(true)]
+public class OnRoundViewDto
+{
+	public required BetDto[] Bets { get; init; }
+	public required string Hash { get; init; } = null!; //hmac512
+	public required decimal HouseEdge { get; set; }
+	public Dictionary<string, object>? CustomData { get; init; }
+	public int? InGameNonce { get; init; }
+
+	/// <summary>What the game stored when the round settled, for what the hash cannot give, for example which tiles a player opened</summary>
+	public Dictionary<string, object>? Info { get; init; }
+
+	/// <summary>Only there to be displayed, for example "Won 19.80 USD" under the dice</summary>
+	public required decimal BetAmount { get; init; }
+	public required decimal WinAmount { get; init; }
+	public required string Currency { get; init; } = null!;
+	public required int DecimalPoints { get; init; }
+}
+
+[MessagePackObject(true)]
+public class OnRoundViewResultDto
+{
+	/// <summary>A style block and markup, without html, head or body, because the host wraps it. Scripts do not run. Empty means no view.</summary>
+	public required string Html { get; set; }
+}
+
+[MessagePackObject(true)]
 public record MonteCarloInfoDto
 {
 	public string McBetId { get; set; } = null!;
