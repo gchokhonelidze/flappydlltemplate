@@ -252,6 +252,41 @@ public class GameManifestDto
 	/// </para>
 	/// </summary>
 	public GameStateKeyDto[]? OutcomeKeys { get; init; }
+
+	/// <summary>
+	/// Universal games only, optional. Bet ids where every bet is settled on its own, right after it is placed, while the id stays open
+	/// for more bets. Example: a crash game's ROCKET. A player fires it during the flight, it pays 0 or 3× on the next tick, and they
+	/// can fire again.
+	/// <para>
+	/// Normally a payout while a bet id is open fails the test (behaviour.reveal), because the player would bet again knowing the
+	/// result. For an id listed here it does not, and its payouts are left out of the two hash comparison. In return the test holds
+	/// every bet on it to these rules (behaviour.instant), so keep to them:
+	/// - it is the only item of its transaction: refuse ROCKET mixed with C0 in OnUniversalCanBet;
+	/// - refuse it in OnUniversalCanRollback, always;
+	/// - its payout comes from the round and the transaction alone, for example HMAC(hash, transaction id). It must pay the same with
+	///   the other players' bets removed, or with another ROCKET placed before it by the same player;
+	/// - the other bet ids pay the same with and without the ROCKET bets in the round;
+	/// - it must really depend on its transaction: a ROCKET paying 3× for every shot of one round and 0 for every shot of another is
+	///   the round's result shown early, and fails.
+	/// </para>
+	/// <para>
+	/// Closing such an id (CloseBetIds or CloseBetting) ends the exception: from then on it is a closed id like any other. Closing it
+	/// does not stop the comparison of the ids still open. Leave it null if your game has no such bets.
+	/// </para>
+	/// </summary>
+	public string[]? InstantBetIds { get; init; }
+
+	/// <summary>
+	/// Universal games only, optional, read with <see cref="InstantBetIds"/>. The Public and Ind state keys that show instant bet
+	/// results, left out of the two hash comparison. Example: Public "LimboWins" and Ind "LimboWinTotal"; "Limbo*" covers both, a Key
+	/// ending in "*" matches every key that starts with it.
+	/// <para>
+	/// Only list keys that show instant bets and nothing else. Every key not listed is still compared. The listed ones are checked in
+	/// a replay with no instant bet placed: with nothing shot, they must not differ with another hash. So Public "*" cannot hide the
+	/// crash point: written into Public "crash" during PREPARE, it fails.
+	/// </para>
+	/// </summary>
+	public GameStateKeyDto[]? InstantKeys { get; init; }
 }
 
 [MessagePackObject(true)]
